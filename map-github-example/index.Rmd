@@ -1,0 +1,97 @@
+---
+title: "Untitled"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+```
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Chart A
+
+```{r}
+
+library(plotly)
+library(rjson)
+
+url <- 'https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json'
+counties <- rjson::fromJSON(file=url)
+url2<- "https://raw.githubusercontent.com/plotly/datasets/master/fips-unemp-16.csv"
+df <- read.csv(url2, colClasses=c(fips="character"))
+g <- list(
+  scope = 'usa',
+  projection = list(type = 'albers usa'),
+  showlakes = TRUE,
+  lakecolor = toRGB('white')
+)
+fig <- plot_ly()
+fig <- fig %>% add_trace(
+    type="choropleth",
+    geojson=counties,
+    locations=df$fips,
+    z=df$unemp,
+    colorscale="Viridis",
+    zmin=0,
+    zmax=12,
+    marker=list(line=list(
+      width=0)
+    )
+  )
+fig <- fig %>% colorbar(title = "Unemployment Rate (%)")
+fig <- fig %>% layout(
+    title = "2016 US Unemployment by County"
+)
+
+fig <- fig %>% layout(
+    geo = g
+  )
+
+fig
+
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Chart B
+
+```{r}
+
+
+library(plotly)
+
+s <- matrix(c(1, -.75, -.75, 1), ncol = 2)
+obs <- mvtnorm::rmvnorm(500, sigma = s)
+fig <- plot_ly(x = obs[,1], y = obs[,2])
+fig2 <- subplot(
+  fig %>% add_markers(alpha = 0.2),
+  fig %>% add_histogram2d()
+)
+
+fig2
+
+
+```
+
+### Chart C
+
+```{r}
+
+library(plotly)
+
+x <- runif(50, 0, 1)
+y <- runif(50, 0, 1)
+z <- runif(50, 0, 1)
+
+fig <- plot_ly(x = ~x, y = ~y, z = ~z, type = 'mesh3d')
+
+fig
+
+```
+
